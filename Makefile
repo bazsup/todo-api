@@ -30,3 +30,6 @@ image:
 container:
 	docker run -p:8081:8081 --env-file ./test.env \
 	--link some-mariadb:db --name runningtodo todo:test
+
+create_sleep:
+	restcli --show body ./test/create_sleep.http
