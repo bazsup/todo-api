@@ -13,3 +13,9 @@ build:
 liveness:
 	@cat /tmp/live 2> /dev/null
 	@echo $$?
+
+install_vegeta:
+	go install github.com/tsenart/vegeta@latest
+
+attack:
+	echo "GET http://:8081/limitz" | vegeta attack -rate=10/s -duration=1s | vegeta report

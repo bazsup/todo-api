@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
@@ -47,6 +48,7 @@ func main() {
 	r.GET("/healthz", func(c *gin.Context) {
 		c.Status(200)
 	})
+	r.GET("/limitz", limitedHandler)
 	r.GET("/x", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"buildcommit": buildcommit,
@@ -92,4 +94,17 @@ func main() {
 	if err := s.Shutdown(timeoutCtx); err != nil {
 		fmt.Println(err)
 	}
+}
+
+var limiter = rate.NewLimiter(5, 5)
+
+func limitedHandler(c *gin.Context) {
+	if !limiter.Allow() {
+		c.AbortWithStatus(http.StatusTooManyRequests)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "pong",
+	})
 }
