@@ -14,5 +14,5 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "text": "test 1"
+  "text": "test 6"
 }
