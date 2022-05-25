@@ -23,3 +23,10 @@ attack:
 maria:
 	docker run -p 127.0.0.1:3306:3306 --name some-mariadb \
 	-e MARIADB_ROOT_PASSWORD=my-secret-pw -e MARIADB_DATABASE=myapp -d mariadb:10.7.3
+
+image:
+	docker build -t todo:test -f Dockerfile .
+
+container:
+	docker run -p:8081:8081 --env-file ./test.env \
+	--link some-mariadb:db --name runningtodo todo:test
