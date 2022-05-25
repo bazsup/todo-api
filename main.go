@@ -25,19 +25,28 @@ var (
 )
 
 func main() {
-	err := godotenv.Load("local.env")
+	_, err := os.Create("/tmp/live")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove("/tmp/live")
+
+	err = godotenv.Load("local.env")
 	if err != nil {
 		log.Println("please consider enviroment variables: %s", err)
 	}
 
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
-		panic("erfailed to connect database")
+		panic("failed to connect database")
 	}
 
 	db.AutoMigrate(&todo.Todo{})
 
 	r := gin.Default()
+	r.GET("/healthz", func(c *gin.Context) {
+		c.Status(200)
+	})
 	r.GET("/x", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"buildcommit": buildcommit,

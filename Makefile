@@ -9,3 +9,7 @@ build:
 			-ldflags "-X main.buildcommit=`git rev-parse --short HEAD` \
 			-X main.buildtime=`date "+%Y-%m-%dT%H:%M:%SZ:00"`" \
 			-o app
+
+liveness:
+	@cat /tmp/live 2> /dev/null
+	@echo $$?
