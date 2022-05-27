@@ -65,7 +65,8 @@ func main() {
 
 	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
-	handler := todo.NewTodoHandler(db)
+	gormStore := todo.NewGormStore(db)
+	handler := todo.NewTodoHandler(gormStore)
 	protected.POST("/todos", handler.NewTask)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
