@@ -21,7 +21,7 @@ func TestNewTodoNotAllowSleep(t *testing.T) {
 
 	gormStore := todo.NewGormStore(&gorm.DB{})
 	handler := todo.NewTodoHandler(gormStore)
-	handler.NewTask(c)
+	todo.NewGinHandler(handler.NewTask)(c)
 
 	fmt.Println(w.Body.String())
 }
