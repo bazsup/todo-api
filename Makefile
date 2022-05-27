@@ -33,3 +33,7 @@ container:
 
 create_sleep:
 	restcli --show body ./test/create_sleep.http
+
+mongo:
+	docker run -p 127.0.0.1:27017:27017 --name some-mongo \
+	-e MONGO_INITDB_ROOT_USERNAME=mongoadmin -e MONGO_INITDB_ROOT_PASSWORD=secretpw -d mongo:5.0.8

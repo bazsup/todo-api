@@ -12,6 +12,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/time/rate"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -68,8 +70,15 @@ func main() {
 
 	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
-	gormStore := store.NewGormStore(db)
-	handler := todo.NewTodoHandler(gormStore)
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGO_CONN")))
+	if err != nil {
+		panic("failed to connect mongo")
+	}
+	collection := client.Database("myapp").Collection("todos")
+
+	mongoStore := store.NewMongoDBStore(collection)
+	// gormStore := store.NewGormStore(db)
+	handler := todo.NewTodoHandler(mongoStore)
 
 	protected.POST("/todos", handler.NewTask)
 
