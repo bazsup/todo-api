@@ -17,6 +17,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/bazsup/todoapi/auth"
+	"github.com/bazsup/todoapi/router"
+	"github.com/bazsup/todoapi/store"
 	"github.com/bazsup/todoapi/todo"
 )
 
@@ -65,10 +67,10 @@ func main() {
 
 	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
-	gormStore := todo.NewGormStore(db)
+	gormStore := store.NewGormStore(db)
 	handler := todo.NewTodoHandler(gormStore)
 
-	protected.POST("/todos", todo.NewGinHandler(handler.NewTask))
+	protected.POST("/todos", router.NewGinHandler(handler.NewTask))
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
