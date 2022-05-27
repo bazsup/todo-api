@@ -32,6 +32,20 @@ func (c *MyContext) JSON(statuscode int, v interface{}) {
 	c.Context.JSON(statuscode, v)
 }
 
+func (c *MyContext) Authorization() string {
+	auth := c.Request.Header.Get("Authorization")
+	return auth
+}
+func (c *MyContext) AbortWithStatus(statuscode int) {
+	c.Context.AbortWithStatus(statuscode)
+}
+func (c *MyContext) Set(k string, v interface{}) {
+	c.Context.Set(k, v)
+}
+func (c *MyContext) Next() {
+	c.Context.Next()
+}
+
 func NewGinHandler(handler func(todo.Context)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		handler(NewMyContext(ctx))
@@ -67,8 +81,8 @@ type MyRouterGroup struct {
 	*gin.RouterGroup
 }
 
-func (r *MyRouter) Group(path string, handler gin.HandlerFunc) *MyRouterGroup {
-	return &MyRouterGroup{r.Engine.Group(path, handler)}
+func (r *MyRouter) Group(path string, handler func(todo.Context)) *MyRouterGroup {	
+	return &MyRouterGroup{r.Engine.Group(path, NewGinHandler(handler))}
 }
 
 func (r *MyRouterGroup) POST(path string, handler func(todo.Context)) {

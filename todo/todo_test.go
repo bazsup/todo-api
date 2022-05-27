@@ -42,3 +42,16 @@ func (TestContext) Audience() string {
 func (c *TestContext) JSON(code int, v interface{}) {
 	c.v = v.(map[string]interface{})
 }
+func (c *TestContext) Authorization() string {
+	return "Bearer token"
+}
+
+func (c *TestContext) AbortWithStatus(statuscode int) {
+	
+}
+func (c *TestContext) Set(k string, v interface{}) {
+	
+}
+func (c *TestContext) Next() {
+	
+}

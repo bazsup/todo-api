@@ -5,13 +5,14 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/bazsup/todoapi/todo"
 	"github.com/golang-jwt/jwt"
 )
 
-func Protect(signature []byte) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		auth := c.Request.Header.Get("Authorization")
+func Protect(signature []byte) func(c todo.Context) {
+	return func(c todo.Context) {
+		
+		auth := c.Authorization()
 		tokenString := strings.TrimPrefix(auth, "Bearer ")
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

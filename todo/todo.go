@@ -34,6 +34,10 @@ type Context interface {
 	TransactionID() string
 	Audience() string
 	JSON(int, interface{})
+	Authorization() string
+	AbortWithStatus(statuscode int)
+	Set(k string, v interface{})
+	Next()
 }
 
 func (t *TodoHandler) NewTask(c Context) {
