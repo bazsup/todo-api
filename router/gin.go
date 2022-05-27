@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/bazsup/todoapi/todo"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,4 +36,41 @@ func NewGinHandler(handler func(todo.Context)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		handler(NewMyContext(ctx))
 	}
+}
+
+type MyRouter struct {
+	*gin.Engine
+}
+
+func NewMyRouter() *MyRouter {
+	r := gin.Default()
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:8080",
+	}
+	config.AllowHeaders = []string{
+		"Origin",
+		"Authorization",
+		"TransactionID",
+	}
+	r.Use(cors.New(config))
+
+	return &MyRouter{r}
+}
+
+func (r *MyRouter) POST(path string, handler func(todo.Context)) {
+	r.Engine.POST(path, NewGinHandler(handler))
+}
+
+type MyRouterGroup struct {
+	*gin.RouterGroup
+}
+
+func (r *MyRouter) Group(path string, handler gin.HandlerFunc) *MyRouterGroup {
+	return &MyRouterGroup{r.Engine.Group(path, handler)}
+}
+
+func (r *MyRouterGroup) POST(path string, handler func(todo.Context)) {
+	r.RouterGroup.POST(path, NewGinHandler(handler))
 }
