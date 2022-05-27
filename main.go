@@ -2,12 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -48,23 +45,24 @@ func main() {
 
 	db.AutoMigrate(&todo.Todo{})
 
-	r := router.NewMyRouter()
+	// r := router.NewMyRouter()
+	r := router.NewFiberRouter()
 
-	r.GET("/healthz", func(c *gin.Context) {
-		c.Status(200)
-	})
-	r.GET("/limitz", limitedHandler)
-	r.GET("/x", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"buildcommit": buildcommit,
-			"buildtime":   buildtime,
-		})
-	})
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	// r.GET("/healthz", func(c *gin.Context) {
+	// 	c.Status(200)
+	// })
+	// r.GET("/limitz", limitedHandler)
+	// r.GET("/x", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"buildcommit": buildcommit,
+	// 		"buildtime":   buildtime,
+	// 	})
+	// })
+	// r.GET("/ping", func(c *gin.Context) {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"message": "pong",
+	// 	})
+	// })
 
 	r.GET("/tokenz", auth.AccessToken([]byte(os.Getenv("SIGN"))))
 
@@ -82,32 +80,35 @@ func main() {
 
 	protected.POST("/todos", handler.NewTask)
 
-	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-
-	s := &http.Server{
-		Addr:           ":" + os.Getenv("PORT"),
-		Handler:        r,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	if err := r.Listen(":" + os.Getenv("PORT")); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("listen: %s\n", err)
 	}
+	// ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 
-	go func() {
-		if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %s\n", err)
-		}
-	}()
+	// s := &http.Server{
+	// 	Addr:           ":" + os.Getenv("PORT"),
+	// 	Handler:        r,
+	// 	ReadTimeout:    10 * time.Second,
+	// 	WriteTimeout:   10 * time.Second,
+	// 	MaxHeaderBytes: 1 << 20,
+	// }
 
-	<-ctx.Done()
-	stop()
-	fmt.Println("shutting down gracefully, press ctrl+c again to force")
+	// go func() {
+	// 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	// 		log.Fatalf("listen: %s\n", err)
+	// 	}
+	// }()
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	// <-ctx.Done()
+	// stop()
+	// fmt.Println("shutting down gracefully, press ctrl+c again to force")
 
-	if err := s.Shutdown(timeoutCtx); err != nil {
-		fmt.Println(err)
-	}
+	// timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// defer cancel()
+
+	// if err := s.Shutdown(timeoutCtx); err != nil {
+	// 	fmt.Println(err)
+	// }
 }
 
 var limiter = rate.NewLimiter(5, 5)

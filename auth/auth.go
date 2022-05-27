@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/bazsup/todoapi/todo"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 )
 
-func AccessToken(signature []byte) gin.HandlerFunc {
-	return func(c *gin.Context) {
+func AccessToken(signature []byte) func(c todo.Context) {
+	return func(c todo.Context) {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(5 * time.Hour).Unix(),
 			Audience:  "Bas",

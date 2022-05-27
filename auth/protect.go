@@ -11,7 +11,7 @@ import (
 
 func Protect(signature []byte) func(c todo.Context) {
 	return func(c todo.Context) {
-		
+
 		auth := c.Authorization()
 		tokenString := strings.TrimPrefix(auth, "Bearer ")
 
@@ -26,6 +26,7 @@ func Protect(signature []byte) func(c todo.Context) {
 
 		if err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
