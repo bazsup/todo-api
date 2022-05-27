@@ -1,27 +1,44 @@
 package todo_test
 
 import (
-	"bytes"
-	"fmt"
-	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/bazsup/todoapi/todo"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func TestNewTodoNotAllowSleep(t *testing.T) {
-	w := httptest.NewRecorder()
-	c, _ := gin.CreateTestContext(w)
-	payload := bytes.NewBufferString(`{"text":"sleep"}`)
-	req, _ := http.NewRequest("POST", "/todos", payload)
-	c.Request = req
+	handler := todo.NewTodoHandler(&TestDB{})
+	c := &TestContext{}
 
-	gormStore := todo.NewGormStore(&gorm.DB{})
-	handler := todo.NewTodoHandler(gormStore)
-	todo.NewGinHandler(handler.NewTask)(c)
+	handler.NewTask(c)
 
-	fmt.Println(w.Body.String())
+	want := "not allowed"
+
+	if want != c.v["error"] {
+		t.Errorf("want %s but get %s", want, c.v["error"])
+	}
+}
+
+type TestDB struct{}
+
+func (TestDB) New(t *todo.Todo) error {
+	return nil
+}
+
+type TestContext struct {
+	v map[string]interface{}
+}
+
+func (TestContext) Bind(v interface{}) error {
+	*v.(*todo.Todo) = todo.Todo{Title: "sleep"}
+	return nil
+}
+func (TestContext) TransactionID() string {
+	return "TestTransactionID"
+}
+func (TestContext) Audience() string {
+	return "Unit Test"
+}
+func (c *TestContext) JSON(code int, v interface{}) {
+	c.v = v.(map[string]interface{})
 }
