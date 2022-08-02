@@ -25,6 +25,10 @@ func (TestDB) New(t *todo.Todo) error {
 	return nil
 }
 
+func (TestDB) GetAll() ([]todo.Todo, error) {
+	return nil, nil
+}
+
 type TestContext struct {
 	v map[string]interface{}
 }
@@ -47,11 +51,11 @@ func (c *TestContext) Authorization() string {
 }
 
 func (c *TestContext) AbortWithStatus(statuscode int) {
-	
+
 }
 func (c *TestContext) Set(k string, v interface{}) {
-	
+
 }
 func (c *TestContext) Next() {
-	
+
 }

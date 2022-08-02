@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"os"
@@ -9,13 +8,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/time/rate"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 
-	"github.com/bazsup/todoapi/auth"
 	"github.com/bazsup/todoapi/router"
 	"github.com/bazsup/todoapi/store"
 	"github.com/bazsup/todoapi/todo"
@@ -38,12 +32,12 @@ func main() {
 		log.Println("please consider enviroment variables: %s", err)
 	}
 
-	db, err := gorm.Open(mysql.Open(os.Getenv("DB_CONN")), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+	// db, err := gorm.Open(mysql.Open(os.Getenv("DB_CONN")), &gorm.Config{})
+	// if err != nil {
+	// 	panic("failed to connect database")
+	// }
 
-	db.AutoMigrate(&todo.Todo{})
+	// db.AutoMigrate(&todo.Todo{})
 
 	// r := router.NewMyRouter()
 	r := router.NewFiberRouter()
@@ -64,21 +58,24 @@ func main() {
 	// 	})
 	// })
 
-	r.GET("/tokenz", auth.AccessToken([]byte(os.Getenv("SIGN"))))
+	// r.GET("/tokenz", auth.AccessToken([]byte(os.Getenv("SIGN"))))
 
-	protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
+	// protected := r.Group("", auth.Protect([]byte(os.Getenv("SIGN"))))
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGO_CONN")))
-	if err != nil {
-		panic("failed to connect mongo")
-	}
-	collection := client.Database("myapp").Collection("todos")
+	// client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(os.Getenv("MONGO_CONN")))
+	// if err != nil {
+	// 	panic("failed to connect mongo")
+	// }
+	// collection := client.Database("myapp").Collection("todos")
 
-	mongoStore := store.NewMongoDBStore(collection)
+	// mongoStore := store.NewMongoDBStore(collection)
+	localStore := store.NewLocalStore()
+
 	// gormStore := store.NewGormStore(db)
-	handler := todo.NewTodoHandler(mongoStore)
+	handler := todo.NewTodoHandler(localStore)
 
-	protected.POST("/todos", handler.NewTask)
+	r.GET("/todos", handler.GetTasks)
+	r.POST("/todos", handler.NewTask)
 
 	if err := r.Listen(":" + os.Getenv("PORT")); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("listen: %s\n", err)

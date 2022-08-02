@@ -19,6 +19,7 @@ func (Todo) TableName() string {
 
 type storer interface {
 	New(*Todo) error
+	GetAll() ([]Todo, error)
 }
 
 type TodoHandler struct {
@@ -63,5 +64,17 @@ func (t *TodoHandler) NewTask(c Context) {
 
 	c.JSON(http.StatusCreated, map[string]interface{}{
 		"ID": todo.ID,
+	})
+}
+
+func (t *TodoHandler) GetTasks(c Context) {
+	todos, err := t.store.GetAll()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, map[string]interface{}{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, map[string]interface{}{
+		"data": todos,
 	})
 }
