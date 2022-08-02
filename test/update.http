@@ -1,0 +1,9 @@
+@base_url=http://localhost:8081
+@id=1
+
+PATCH {{base_url}}/todos/{{id}}
+Content-Type: application/json
+
+{
+  "completed": false
+}

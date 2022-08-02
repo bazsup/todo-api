@@ -46,6 +46,10 @@ func (c *MyContext) Next() {
 	c.Context.Next()
 }
 
+func (c *MyContext) Param(key string) string {
+	return c.Context.Param(key)
+}
+
 func NewGinHandler(handler func(todo.Context)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		handler(NewMyContext(ctx))

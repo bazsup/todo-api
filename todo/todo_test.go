@@ -29,6 +29,13 @@ func (TestDB) GetAll() ([]todo.Todo, error) {
 	return nil, nil
 }
 
+func (TestDB) Update(int, bool) error {
+	return nil
+}
+
+func (TestDB) Reset() {
+}
+
 type TestContext struct {
 	v map[string]interface{}
 }
@@ -58,4 +65,8 @@ func (c *TestContext) Set(k string, v interface{}) {
 }
 func (c *TestContext) Next() {
 
+}
+
+func (c *TestContext) Param(string) string {
+	return ""
 }

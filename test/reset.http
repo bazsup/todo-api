@@ -1,0 +1,4 @@
+@base_url=http://localhost:8081
+
+POST {{base_url}}/reset
+Content-Type: application/json

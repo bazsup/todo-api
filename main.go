@@ -76,6 +76,8 @@ func main() {
 
 	r.GET("/todos", handler.GetTasks)
 	r.POST("/todos", handler.NewTask)
+	r.PATCH("/todos/:id", handler.UpdateStatus)
+	r.POST("/reset", handler.Reset)
 
 	if err := r.Listen(":" + os.Getenv("PORT")); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("listen: %s\n", err)

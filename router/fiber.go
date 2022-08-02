@@ -44,6 +44,10 @@ func (c *FiberCtx) Next() {
 	c.Ctx.Next()
 }
 
+func (c *FiberCtx) Param(key string) string {
+	return c.Ctx.Params(key)
+}
+
 func NewFiberHandler(handler func(todo.Context)) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
 		handler(NewFiberCtx(ctx))
@@ -70,6 +74,13 @@ func (r *FiberRouter) GET(path string, handler func(todo.Context)) {
 
 func (r *FiberRouter) POST(path string, handler func(todo.Context)) {
 	r.App.Post(path, func(c *fiber.Ctx) error {
+		handler(NewFiberCtx(c))
+		return nil
+	})
+}
+
+func (r *FiberRouter) PATCH(path string, handler func(todo.Context)) {
+	r.App.Patch(path, func(c *fiber.Ctx) error {
 		handler(NewFiberCtx(c))
 		return nil
 	})
